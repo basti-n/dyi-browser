@@ -1,3 +1,4 @@
+from core.services.htmlDisplayService import HTMLDisplayService
 from core.services.socketService import SocketService
 from core.socket import create_socket
 from utils.url import extractHostAndPath
@@ -14,8 +15,8 @@ def start(host: str = 'example.org') -> None:
     request_service = RequestService(socket)
     headers, body = request_service.request(path='/index', host=host)
 
-    print('Headers: {}'.format(headers))
-    print('Body: {}'.format(body))
+    htmlService = HTMLDisplayService(body)
+    htmlService.show()
 
     socket.close()
 
