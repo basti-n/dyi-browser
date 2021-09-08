@@ -1,5 +1,5 @@
 import socket
-from core.erroLogger import log_error
+from core.errorLogger import log_error
 
 
 def create_socket() -> socket.socket:
