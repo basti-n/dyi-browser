@@ -1,18 +1,27 @@
 from typing import Tuple, Union
 
 
-supported_schema = 'http://'
+supported_schemas = ('http://', 'https://', 'file://')
+
+
+def includesSchema(url: str) -> bool:
+    return len(url.split('//', 1)) > 1
 
 
 def throwOnInvalidSchema(url: str):
     """ Throws error if URL does not start with http schema """
-    assert url.startswith(supported_schema)
+    if includesSchema(url):
+        assert url.startswith(supported_schemas)
+
+
+def getSchema(url: str) -> str:
+    return url.split('//', 1)[0] + '//' if includesSchema(url) else ''
 
 
 def stripSchema(url: str) -> str:
     """ Strips supported schema (http) from provided url """
     throwOnInvalidSchema(url)
-    return url[len(supported_schema):]
+    return url[len(getSchema(url)):]
 
 
 def extractHostAndPath(urlWithoutSchema: str) -> Tuple[str, str]:
