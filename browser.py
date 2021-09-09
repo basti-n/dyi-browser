@@ -12,7 +12,8 @@ def start(host: str = 'example.org') -> None:
     socket_service.connect()
 
     request_service = RequestService(socket)
-    headers, body = request_service.request(path='/index', host=host)
+    headers, body = request_service.request(
+        path='/index', host=host, connection='close', userAgent="custom")
 
     htmlService = HTMLDisplayService(body)
     htmlService.show()
