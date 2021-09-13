@@ -1,11 +1,19 @@
 from typing import Tuple, Union
 
 
-supported_schemas = ('http://', 'https://', 'file://')
+supported_schemas = ('http://', 'https://', 'file://', 'data:text/html')
+
+
+def hasRegularSchema(url: str) -> bool:
+    return len(url.split('//', 1)) > 1
+
+
+def hasDataSchema(url: str) -> bool:
+    return 'data' in url
 
 
 def includesSchema(url: str) -> bool:
-    return len(url.split('//', 1)) > 1
+    return hasRegularSchema(url) or hasDataSchema(url)
 
 
 def throwOnInvalidSchema(url: str):
@@ -15,7 +23,12 @@ def throwOnInvalidSchema(url: str):
 
 
 def getSchema(url: str) -> str:
-    return url.split('//', 1)[0] + '//' if includesSchema(url) else ''
+    if hasRegularSchema(url):
+        return url.split('//', 1)[0] + '//'
+    if hasDataSchema(url):
+        return url.split(',', 1)[0]
+
+    return ''
 
 
 def stripSchema(url: str) -> str:
@@ -29,10 +42,21 @@ def extractHostAndPath(urlWithoutSchema: str) -> Tuple[str, str]:
     return urlWithoutSchema.split('/', 1)
 
 
-def extractPortFromHost(host: str) -> Union[int, None]:
-    """ If found, returns the port read from the host string """
-    if ':' in host:
-        port = host.split(':', 1)[1]
-        return int(port)
+def extractAfter(input: str, predicate: str) -> Union[int, None]:
+    """ Returns the matched input after the predicate (if found) """
+    if predicate in input:
+        match = input.split(predicate, 1)[1]
+        return match
 
     return None
+
+
+def extractPortFromHost(host: str) -> Union[int, None]:
+    """ If found, returns the port read from the host string """
+    port = extractAfter(host, ':')
+    return int(port) if port else None
+
+
+def extractDataFromHost(host: str) -> Union[int, None]:
+    """ Returns the data from the passed data url host """
+    return extractAfter(host, ',')

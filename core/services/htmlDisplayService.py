@@ -13,7 +13,7 @@ class HTMLDisplayService(DisplayService):
         self.body = body
 
     def show(self) -> str:
-        in_angle = True
+        in_angle = False
 
         for char in self.body:
             if char == HtmlBrackets.OPEN_TAG.value:
@@ -24,3 +24,5 @@ class HTMLDisplayService(DisplayService):
 
             if char == HtmlBrackets.CLOSE_TAG.value:
                 in_angle = False
+
+        print('')

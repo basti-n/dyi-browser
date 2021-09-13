@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Dict, Tuple, Union
 from utils.string import camelCaseToKebabCase
 from utils.requestHelper import RequestHelper
 from core.constants.constants import RESPONSE_NEW_LINE
@@ -11,7 +11,7 @@ class RequestService:
         self.socket = socket
         self.protocol = protocol.upper()
 
-    def request(self, *, path: str, **headers) -> None:
+    def request(self, *, path: str, **headers) -> Tuple[Dict, str]:
         targetPath = f'GET {path}.html HTTP/1.0\r\n'
         targetHeaders = ''.join([RequestHelper.createHeader(
             camelCaseToKebabCase(key), value) + RESPONSE_NEW_LINE for key, value in headers.items()])

@@ -2,12 +2,9 @@ from core.constants.constants import Schema
 from core.services.schemaService import SchemaService
 from core.services.htmlDisplayService import HTMLDisplayService
 from core.services.socketService import SocketService
-from utils.url import extractHostAndPath
+from utils.url import extractDataFromHost, extractHostAndPath
 from core.services.requestService import RequestService
 from core.services.fileService import FileService
-
-print(extractHostAndPath('browser.engineering/http.html'))
-
 
 def start(host: str = 'example.org') -> None:
     schemaService = SchemaService(host)
@@ -17,9 +14,15 @@ def start(host: str = 'example.org') -> None:
         fileService.readFile(schemaService.schemalessPath)
         return
 
+    if schemaService.schema == Schema.HTML.value:
+        html = extractDataFromHost(host)
+        htmlService = HTMLDisplayService(html)
+        htmlService.show()
+        return
+
     if not schemaService.schema or schemaService.schema == Schema.HTTP.value or schemaService.schema == Schema.HTTPS.value:
         socket_service = SocketService(host)
-        socket = socket_service.create()
+        socket = socket_service.create(secure=True)
         socket_service.connect()
 
         request_service = RequestService(socket)
