@@ -1,5 +1,6 @@
 from core.models.displayService import DisplayService
 from enum import Enum
+import re
 
 
 class HtmlBrackets(Enum):
@@ -12,10 +13,10 @@ class HTMLDisplayService(DisplayService):
         super().__init__()
         self.body = body
 
-    def show(self) -> str:
+    def show(self, *, body=None) -> str:
         in_angle = False
 
-        for char in self.body:
+        for char in body or self.body:
             if char == HtmlBrackets.OPEN_TAG.value:
                 in_angle = True
 
@@ -26,3 +27,10 @@ class HTMLDisplayService(DisplayService):
                 in_angle = False
 
         print('')
+
+    def findAllBetweenTag(self, html: str, tag: str) -> list[str]:
+        """ Returns a list of all content found within the tags """
+        match = re.findall(rf'(?<=<{tag}>)(.*?)(?=<\/{tag}>)',
+                           html, flags=re.MULTILINE | re.DOTALL)
+
+        return match

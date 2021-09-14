@@ -1,10 +1,11 @@
-from core.constants.constants import Schema
+from core.constants.constants import RESPONSE_NEW_LINE, Schema
 from core.services.schemaService import SchemaService
 from core.services.htmlDisplayService import HTMLDisplayService
 from core.services.socketService import SocketService
 from utils.url import extractDataFromHost, extractHostAndPath
 from core.services.requestService import RequestService
 from core.services.fileService import FileService
+
 
 def start(host: str = 'example.org') -> None:
     schemaService = SchemaService(host)
@@ -32,6 +33,9 @@ def start(host: str = 'example.org') -> None:
         htmlService = HTMLDisplayService(body)
         htmlService.show()
 
+        betweenBodyTag = htmlService.findAllBetweenTag(body, 'body')
+        print(htmlService.show(body=RESPONSE_NEW_LINE.join(betweenBodyTag)))
+        
         socket.close()
         return
 
