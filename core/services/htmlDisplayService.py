@@ -1,5 +1,6 @@
 from core.models.displayService import DisplayService
 from enum import Enum
+from xml.sax import saxutils as su
 import re
 
 
@@ -21,7 +22,7 @@ class HTMLDisplayService(DisplayService):
                 in_angle = True
 
             if not in_angle:
-                print(char, end='')
+                print(self.__unescape(char), end='')
 
             if char == HtmlBrackets.CLOSE_TAG.value:
                 in_angle = False
@@ -34,3 +35,6 @@ class HTMLDisplayService(DisplayService):
                            html, flags=re.MULTILINE | re.DOTALL)
 
         return match
+
+    def __unescape(self, content: str) -> str:
+        return su.unescape(content)
