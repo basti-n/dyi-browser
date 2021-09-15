@@ -34,8 +34,7 @@ def start(host: str = 'example.org') -> None:
             path='/index', host=schemaService.host, connection='close', userAgent="custom")
 
         htmlService = HTMLDisplayService(body)
-        htmlService.show(view_source=schemaService.schema ==
-                         Schema.SOURCE.value)
+        htmlService.show(view_source=is_view_source)
 
         betweenBodyTag = htmlService.findAllBetweenTag(body, 'body')
         print(htmlService.show(body=RESPONSE_NEW_LINE.join(betweenBodyTag)))
