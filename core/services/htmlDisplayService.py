@@ -14,19 +14,15 @@ class HTMLDisplayService(DisplayService):
         super().__init__()
         self.body = body
 
-    def show(self, *, body=None) -> str:
-        in_angle = False
+    def show(self, *, body=None, view_source=False) -> str:
+        if view_source:
+            print('***' * 3, 'VIEW-SOURCE', '***' * 3)
+            print(body or self.body)
+            print('***' * 9)
 
-        for char in body or self.body:
-            if char == HtmlBrackets.OPEN_TAG.value:
-                in_angle = True
+        content = self.__strip_tags(body or self.body)
 
-            if not in_angle:
-                print(self.__unescape(char), end='')
-
-            if char == HtmlBrackets.CLOSE_TAG.value:
-                in_angle = False
-
+        print(content)
         print('')
 
     def findAllBetweenTag(self, html: str, tag: str) -> list[str]:
@@ -38,3 +34,24 @@ class HTMLDisplayService(DisplayService):
 
     def __unescape(self, content: str) -> str:
         return su.unescape(content)
+
+    def __strip_tags(self, content: str, *, debug=False) -> str:
+        """ Removes all tags from provided content strings """
+        in_angle = False
+        stripped_content = ''
+
+        for char in content:
+            if char == HtmlBrackets.OPEN_TAG.value:
+                in_angle = True
+
+            if not in_angle:
+                unescaped_char = self.__unescape(char)
+                if debug:
+                    print(unescaped_char, end='')
+
+                stripped_content = stripped_content + unescaped_char
+
+            if char == HtmlBrackets.CLOSE_TAG.value:
+                in_angle = False
+
+        return stripped_content

@@ -9,6 +9,7 @@ class Ports(Enum):
 
 
 class Schema(Enum):
+    SOURCE = 'view-source:'
     HTML = 'data:text/html'
     FILE = 'file://'
     HTTP = 'http://'

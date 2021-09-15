@@ -2,7 +2,7 @@ from core.constants.constants import RESPONSE_NEW_LINE, Schema
 from core.services.schemaService import SchemaService
 from core.services.htmlDisplayService import HTMLDisplayService
 from core.services.socketService import SocketService
-from utils.url import extractDataFromHost, extractHostAndPath
+from utils.url import extractDataFromHost
 from core.services.requestService import RequestService
 from core.services.fileService import FileService
 
@@ -21,21 +21,25 @@ def start(host: str = 'example.org') -> None:
         htmlService.show()
         return
 
-    if not schemaService.schema or schemaService.schema == Schema.HTTP.value or schemaService.schema == Schema.HTTPS.value:
-        socket_service = SocketService(host)
+    if not schemaService.schema or schemaService.schema == Schema.HTTP.value or schemaService.schema == Schema.HTTPS.value or schemaService.schema == Schema.SOURCE.value:
+        is_view_source = schemaService.schema == Schema.SOURCE.value
+
+        socket_service = SocketService(
+            schemaService.schemalessPath if is_view_source else host)
         socket = socket_service.create(secure=True)
         socket_service.connect()
 
         request_service = RequestService(socket)
         headers, body = request_service.request(
-            path='/index', host=host, connection='close', userAgent="custom")
+            path='/index', host=schemaService.host, connection='close', userAgent="custom")
 
         htmlService = HTMLDisplayService(body)
-        htmlService.show()
+        htmlService.show(view_source=schemaService.schema ==
+                         Schema.SOURCE.value)
 
         betweenBodyTag = htmlService.findAllBetweenTag(body, 'body')
         print(htmlService.show(body=RESPONSE_NEW_LINE.join(betweenBodyTag)))
-        
+
         socket.close()
         return
 

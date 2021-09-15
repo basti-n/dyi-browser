@@ -1,7 +1,8 @@
 from typing import Tuple, Union
 
 
-supported_schemas = ('http://', 'https://', 'file://', 'data:text/html')
+supported_schemas = ('http://', 'https://', 'file://',
+                     'data:text/html', 'view-source:')
 
 
 def hasRegularSchema(url: str) -> bool:
@@ -12,8 +13,12 @@ def hasDataSchema(url: str) -> bool:
     return 'data' in url
 
 
+def hasViewSourceSchema(url: str) -> bool:
+    return 'view-source' in url
+
+
 def includesSchema(url: str) -> bool:
-    return hasRegularSchema(url) or hasDataSchema(url)
+    return hasRegularSchema(url) or hasDataSchema(url) or hasViewSourceSchema(url)
 
 
 def throwOnInvalidSchema(url: str):
@@ -27,6 +32,8 @@ def getSchema(url: str) -> str:
         return url.split('//', 1)[0] + '//'
     if hasDataSchema(url):
         return url.split(',', 1)[0]
+    if hasViewSourceSchema(url):
+        return url.split(':', 1)[0] + ':'
 
     return ''
 
@@ -60,3 +67,8 @@ def extractPortFromHost(host: str) -> Union[int, None]:
 def extractDataFromHost(host: str) -> Union[int, None]:
     """ Returns the data from the passed data url host """
     return extractAfter(host, ',')
+
+
+def extractUrlFromViewSource(host: str) -> Union[str, None]:
+    """ If found, returns the url part of the provided view source uri """
+    return extractAfter(host, ':')
