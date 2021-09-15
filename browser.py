@@ -31,7 +31,7 @@ def start(host: str = 'example.org') -> None:
 
         request_service = RequestService(socket)
         headers, body = request_service.request(
-            path='/index', host=schemaService.host, connection='close', userAgent="custom")
+            path='/index', host=schemaService.host, connection='close', userAgent="custom", acceptEncoding="gzip, deflate, br")
 
         htmlService = HTMLDisplayService(body)
         htmlService.show(view_source=is_view_source)
