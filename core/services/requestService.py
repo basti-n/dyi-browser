@@ -1,4 +1,8 @@
+from sys import path
+from core.services.schemaService import SchemaService
 from typing import Dict, Tuple, Union
+from xml.sax import parseString
+from utils.url import captureHostFromUrl, is_relative_path
 from utils.string import camelCaseToKebabCase
 from utils.requestHelper import RequestHelper
 from core.constants.constants import MAX_REDIRECT_COUNT, RESPONSE_NEW_LINE, HttpHeaders
@@ -30,7 +34,7 @@ class RequestService:
         if self.__is_redirect(parsed_response) and count < MAX_REDIRECT_COUNT:
             print('Redirecting to...  ',
                   parsed_response[1][HttpHeaders.LOCATION.value])
-            return self.request(parsed_response[1][HttpHeaders.LOCATION.value], **headers)
+            return self.request(self.__get_path_from_location_header(parsed_response[1][HttpHeaders.LOCATION.value]), **headers)
 
         return parsed_response
 
@@ -38,3 +42,10 @@ class RequestService:
         status, headers, _ = response
 
         return status >= 300 and status < 400 and headers[HttpHeaders.LOCATION.value]
+
+    def __get_path_from_location_header(self, location: str) -> str:
+        if is_relative_path(location):
+            base_url = captureHostFromUrl(path)
+            return f'{base_url}{location}'
+
+        return location
