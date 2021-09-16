@@ -1,6 +1,7 @@
 from enum import Enum
 
 RESPONSE_NEW_LINE = '\r\n'
+MAX_REDIRECT_COUNT = 3
 
 
 class Ports(Enum):
@@ -14,3 +15,7 @@ class Schema(Enum):
     FILE = 'file://'
     HTTP = 'http://'
     HTTPS = 'https://'
+
+
+class HttpHeaders(Enum):
+    LOCATION = 'location'

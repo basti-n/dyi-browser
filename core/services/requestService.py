@@ -1,7 +1,7 @@
 from typing import Dict, Tuple, Union
 from utils.string import camelCaseToKebabCase
 from utils.requestHelper import RequestHelper
-from core.constants.constants import RESPONSE_NEW_LINE
+from core.constants.constants import MAX_REDIRECT_COUNT, RESPONSE_NEW_LINE, HttpHeaders
 import socket
 from utils.responseHelper import ResponseHelper
 
@@ -11,7 +11,7 @@ class RequestService:
         self.socket = socket
         self.protocol = protocol.upper()
 
-    def request(self, *, path: str, **headers) -> Tuple[Dict, str]:
+    def request(self, *, path: str, count=0, **headers) -> Tuple[Dict, str]:
         targetPath = f'GET {path}.html HTTP/1.0\r\n'
         targetHeaders = ''.join([RequestHelper.createHeader(
             camelCaseToKebabCase(key), value) + RESPONSE_NEW_LINE for key, value in headers.items()])
@@ -26,4 +26,15 @@ class RequestService:
         response = self.socket.makefile(
             'r', encoding='utf8', newline=RESPONSE_NEW_LINE)
 
-        return ResponseHelper.parseResponse(response)
+        parsed_response = ResponseHelper.parseResponse(response)
+        if self.__is_redirect(parsed_response) and count < MAX_REDIRECT_COUNT:
+            print('Redirecting to...  ',
+                  parsed_response[1][HttpHeaders.LOCATION.value])
+            return self.request(parsed_response[1][HttpHeaders.LOCATION.value], **headers)
+
+        return parsed_response
+
+    def __is_redirect(self, response: Tuple[int, Dict, str]) -> bool:
+        status, headers, _ = response
+
+        return status >= 300 and status < 400 and headers[HttpHeaders.LOCATION.value]

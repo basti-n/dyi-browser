@@ -30,7 +30,7 @@ def start(host: str = 'example.org') -> None:
         socket_service.connect()
 
         request_service = RequestService(socket)
-        headers, body = request_service.request(
+        status, headers, body = request_service.request(
             path='/index', host=schemaService.host, connection='close', userAgent="custom", acceptEncoding="gzip, deflate, br")
 
         htmlService = HTMLDisplayService(body)

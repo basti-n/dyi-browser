@@ -5,15 +5,15 @@ from typing import Dict, TextIO, Tuple
 class ResponseHelper:
 
     @staticmethod
-    def parseResponse(response: TextIO) -> Tuple[Dict, str]:
+    def parseResponse(response: TextIO) -> Tuple[int, Dict, str]:
         status_line = response.readline()
-        version, status, explaination = status_line.split(' ', 2)
-        assert status == '200', '{}: {}'.format(status, explaination)
+        version, status, reason = status_line.split(' ', 2)
+        assert int(status) < 400, '{}: {}'.format(status, reason)
 
         headers = ResponseHelper.extractHeaders(response)
         body = response.read()
 
-        return (headers, body)
+        return (int(status), headers, body)
 
     @staticmethod
     def extractHeaders(response: TextIO) -> Dict:
