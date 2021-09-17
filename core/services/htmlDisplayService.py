@@ -1,3 +1,4 @@
+from typing import List
 from core.models.displayService import DisplayService
 from enum import Enum
 from xml.sax import saxutils as su
@@ -25,7 +26,7 @@ class HTMLDisplayService(DisplayService):
         print(content)
         print('')
 
-    def findAllBetweenTag(self, html: str, tag: str) -> list[str]:
+    def findAllBetweenTag(self, html: str, tag: str) -> List[str]:
         """ Returns a list of all content found within the tags """
         match = re.findall(rf'(?<=<{tag}>)(.*?)(?=<\/{tag}>)',
                            html, flags=re.MULTILINE | re.DOTALL)

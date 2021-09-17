@@ -46,3 +46,5 @@ def start(host: str = 'example.org') -> None:
 if __name__ == '__main__':
     import sys
     start(sys.argv[1])
+    start(sys.argv[1])
+    start(sys.argv[1])

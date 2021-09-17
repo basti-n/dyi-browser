@@ -1,7 +1,6 @@
+from core.services.requestCacheService import RequestCacheService
 from sys import path
-from core.services.schemaService import SchemaService
-from typing import Dict, Tuple, Union
-from xml.sax import parseString
+from typing import Dict, Tuple
 from utils.url import captureHostFromUrl, is_relative_path
 from utils.string import camelCaseToKebabCase
 from utils.requestHelper import RequestHelper
@@ -14,12 +13,17 @@ class RequestService:
     def __init__(self, socket: socket.socket, protocol: str = 'https'):
         self.socket = socket
         self.protocol = protocol.upper()
+        self.cacheService = RequestCacheService()
 
-    def request(self, *, path: str, count=0, **headers) -> Tuple[Dict, str]:
+    def request(self, *, path: str, count=0, **headers) -> Tuple[int, Dict, str]:
         targetPath = f'GET {path}.html HTTP/1.0\r\n'
         targetHeaders = ''.join([RequestHelper.createHeader(
             camelCaseToKebabCase(key), value) + RESPONSE_NEW_LINE for key, value in headers.items()])
         end = RESPONSE_NEW_LINE
+
+        if self.cacheService.has(path):
+            print('Returning data from Cache!')
+            return self.cacheService.get(path)
 
         try:
             self.socket.send((targetPath +
@@ -31,8 +35,12 @@ class RequestService:
             'r', encoding='utf8', newline=RESPONSE_NEW_LINE)
 
         parsed_response = ResponseHelper.parseResponse(response)
+
+        if self.cacheService.shouldCache(parsed_response[0], **parsed_response[1]):
+            self.cacheService.set(path, parsed_response)
+
         if self.__is_redirect(parsed_response) and count < MAX_REDIRECT_COUNT:
-            print('Redirecting to...  ',
+            print('Redirecting to...',
                   parsed_response[1][HttpHeaders.LOCATION.value])
             return self.request(self.__get_path_from_location_header(parsed_response[1][HttpHeaders.LOCATION.value]), **headers)
 

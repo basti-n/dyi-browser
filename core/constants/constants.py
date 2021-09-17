@@ -18,4 +18,12 @@ class Schema(Enum):
 
 
 class HttpHeaders(Enum):
+    CACHE_CONTROL = 'cache-control'
     LOCATION = 'location'
+    DATE = 'date'
+
+
+class CacheControlHeaders(Enum):
+    REVALIDATE = 'must-revalidate'
+    NO_CACHE = 'no-cache'
+    NO_SOTRE = 'no-store'
